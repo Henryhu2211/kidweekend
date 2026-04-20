@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "nest start --watch",
-    "build": "nest build",
+    "build": "npx nest build",
+    "postbuild": "ls -la dist/ || echo 'dist folder not found'",
     "start": "node dist/main",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
