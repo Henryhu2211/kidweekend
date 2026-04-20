@@ -15,7 +15,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: 'http://localhost:3001/api/v1',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://kidweekend.onrender.com/api/v1',
       mapToken: process.env.NUXT_PUBLIC_MAP_TOKEN || '',
     },
   },
