@@ -6,7 +6,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: [
+      'http://localhost:3000',
+      'https://kiwidiscover-frontend.vercel.app',
+      /\.vercel\.app$/, // 允许所有 Vercel 预览部署
+    ],
     credentials: true,
   });
 

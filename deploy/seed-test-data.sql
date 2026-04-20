@@ -17,15 +17,15 @@ INSERT INTO users (id, email, name, role, "emailVerified", "createdAt", "updated
 -- ============================================================
 -- 2. 分类
 -- ============================================================
-INSERT INTO categories (id, "nameEn", "nameZh", slug, icon, "order", "createdAt", "updatedAt") VALUES
-  ('cat_001', 'Playgrounds', '游乐场', 'playgrounds', '🏃', 1, NOW(), NOW()),
-  ('cat_002', 'Museums', '博物馆', 'museums', '🏛️', 2, NOW(), NOW()),
-  ('cat_003', 'Parks & Gardens', '公园花园', 'parks-gardens', '🌳', 3, NOW(), NOW()),
-  ('cat_004', 'Indoor Play', '室内游乐', 'indoor-play', '🏠', 4, NOW(), NOW()),
-  ('cat_005', 'Beaches', '海滩', 'beaches', '🏖️', 5, NOW(), NOW()),
-  ('cat_006', 'Zoos & Aquariums', '动物园水族馆', 'zoos-aquariums', '🦁', 6, NOW(), NOW()),
-  ('cat_007', 'Adventure Parks', '冒险乐园', 'adventure-parks', '🎢', 7, NOW(), NOW()),
-  ('cat_008', 'Libraries', '图书馆', 'libraries', '📚', 8, NOW(), NOW());
+INSERT INTO categories (id, "nameEn", "nameZh", slug, icon, "order") VALUES
+  ('cat_001', 'Playgrounds', '游乐场', 'playgrounds', '🏃', 1),
+  ('cat_002', 'Museums', '博物馆', 'museums', '🏛️', 2),
+  ('cat_003', 'Parks & Gardens', '公园花园', 'parks-gardens', '🌳', 3),
+  ('cat_004', 'Indoor Play', '室内游乐', 'indoor-play', '🏠', 4),
+  ('cat_005', 'Beaches', '海滩', 'beaches', '🏖️', 5),
+  ('cat_006', 'Zoos & Aquariums', '动物园水族馆', 'zoos-aquariums', '🦁', 6),
+  ('cat_007', 'Adventure Parks', '冒险乐园', 'adventure-parks', '🎢', 7),
+  ('cat_008', 'Libraries', '图书馆', 'libraries', '📚', 8);
 
 -- ============================================================
 -- 3. 场所
