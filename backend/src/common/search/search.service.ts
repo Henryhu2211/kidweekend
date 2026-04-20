@@ -40,82 +40,90 @@ export class SearchService {
 
     const start = Date.now();
 
-    // PostgreSQL 模糊搜索：同时匹配英文名、中文名、拼音名、描述、地址
-    const places = await this.prisma.$queryRaw<
-      Array<{
-        id: string;
-        slug: string;
-        nameEn: string;
-        nameZh: string;
-        namePinyin: string | null;
-        description: string | null;
-        address: string;
-        region: string;
-        priceType: string;
-        indoor: boolean;
-        isFeatured: boolean;
-        avgRating: number;
-        reviewCount: number;
-        categoryNameEn: string | null;
-        categoryNameZh: string | null;
-        categorySlug: string | null;
-        imageUrl: string | null;
-        rank: number;
-      }>
-    >`
-      SELECT
-        p.id,
-        p.slug,
-        p.name_en            AS "nameEn",
-        p.name_zh            AS "nameZh",
-        p.name_pinyin        AS "namePinyin",
-        p.description,
-        p.address,
-        p.region,
-        p.price_type         AS "priceType",
-        p.indoor,
-        p.is_featured        AS "isFeatured",
-        p.avg_rating         AS "avgRating",
-        p.review_count       AS "reviewCount",
-        c.name_en            AS "categoryNameEn",
-        c.name_zh            AS "categoryNameZh",
-        c.slug               AS "categorySlug",
-        (
-          SELECT url FROM place_images pi
-          WHERE pi.place_id = p.id
-          ORDER BY pi.order ASC LIMIT 1
-        )                    AS "imageUrl",
-        -- 相关性评分：标题匹配权重更高
-        (
-          CASE WHEN p.name_en ILIKE ${'%' + sanitized + '%'} THEN 4 ELSE 0 END +
-          CASE WHEN p.name_zh ILIKE ${'%' + sanitized + '%'} THEN 4 ELSE 0 END +
-          CASE WHEN p.name_pinyin ILIKE ${'%' + sanitized + '%'} THEN 2 ELSE 0 END +
-          CASE WHEN p.description ILIKE ${'%' + sanitized + '%'} THEN 1 ELSE 0 END +
-          CASE WHEN p.address ILIKE ${'%' + sanitized + '%'} THEN 1 ELSE 0 END +
-          CASE WHEN c.name_en ILIKE ${'%' + sanitized + '%'} THEN 2 ELSE 0 END
-        ) AS rank
-      FROM places p
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.status = 'PUBLISHED'
-        AND (
-          p.name_en ILIKE ${'%' + sanitized + '%'}
-          OR p.name_zh ILIKE ${'%' + sanitized + '%'}
-          OR COALESCE(p.name_pinyin, '') ILIKE ${'%' + sanitized + '%'}
-          OR p.description ILIKE ${'%' + sanitized + '%'}
-          OR p.address ILIKE ${'%' + sanitized + '%'}
-          OR c.name_en ILIKE ${'%' + sanitized + '%'}
-        )
-      ORDER BY rank DESC, p.avg_rating DESC
-      LIMIT ${limit}
-    `;
+    try {
+      // PostgreSQL 模糊搜索：同时匹配英文名、中文名、描述、地址
+      // 注意：使用 COALESCE 处理可能为 NULL 的字段
+      const places = await this.prisma.$queryRaw<
+        Array<{
+          id: string;
+          slug: string;
+          nameEn: string;
+          nameZh: string;
+          description: string | null;
+          address: string | null;
+          region: string | null;
+          priceType: string;
+          indoor: boolean;
+          isFeatured: boolean;
+          avgRating: number;
+          reviewCount: number;
+          categoryNameEn: string | null;
+          categoryNameZh: string | null;
+          categorySlug: string | null;
+          imageUrl: string | null;
+          rank: number;
+        }>
+      >`
+        SELECT
+          p.id,
+          p.slug,
+          p."nameEn",
+          p."nameZh",
+          p.description,
+          p.address,
+          p.region,
+          p."priceType",
+          p.indoor,
+          p."isFeatured",
+          p."avgRating",
+          p."reviewCount",
+          c."nameEn" AS "categoryNameEn",
+          c."nameZh" AS "categoryNameZh",
+          c.slug AS "categorySlug",
+          (
+            SELECT url FROM place_images pi
+            WHERE pi."placeId" = p.id
+            ORDER BY pi.order ASC LIMIT 1
+          ) AS "imageUrl",
+          -- 相关性评分：标题匹配权重更高
+          (
+            CASE WHEN p."nameEn" ILIKE ${'%' + sanitized + '%'} THEN 4 ELSE 0 END +
+            CASE WHEN p."nameZh" ILIKE ${'%' + sanitized + '%'} THEN 4 ELSE 0 END +
+            CASE WHEN p.description ILIKE ${'%' + sanitized + '%'} THEN 1 ELSE 0 END +
+            CASE WHEN p.address ILIKE ${'%' + sanitized + '%'} THEN 1 ELSE 0 END +
+            CASE WHEN c."nameEn" ILIKE ${'%' + sanitized + '%'} THEN 2 ELSE 0 END
+          ) AS rank
+        FROM places p
+        LEFT JOIN categories c ON p."categoryId" = c.id
+        WHERE p.status = 'PUBLISHED'
+          AND (
+            p."nameEn" ILIKE ${'%' + sanitized + '%'}
+            OR p."nameZh" ILIKE ${'%' + sanitized + '%'}
+            OR COALESCE(p.description, '') ILIKE ${'%' + sanitized + '%'}
+            OR COALESCE(p.address, '') ILIKE ${'%' + sanitized + '%'}
+            OR c."nameEn" ILIKE ${'%' + sanitized + '%'}
+          )
+        ORDER BY rank DESC, p."avgRating" DESC
+        LIMIT ${limit}
+      `;
 
-    const processingTimeMs = Date.now() - start;
+      const processingTimeMs = Date.now() - start;
 
-    return {
-      hits: places,
-      query: sanitized,
-      processingTimeMs,
-    };
+      return {
+        hits: places,
+        query: sanitized,
+        processingTimeMs,
+      };
+    } catch (error) {
+      console.error('Search error:', error);
+      // 如果 raw query 失败，返回空结果而不是 500 错误
+      return {
+        hits: [],
+        query: sanitized,
+        processingTimeMs: Date.now() - start,
+        error: 'Search temporarily unavailable',
+      };
+    }
   }
 
   /**
