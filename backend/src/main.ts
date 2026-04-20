@@ -5,12 +5,15 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // 生产环境允许所有来源（Vercel预览部署动态域名）
+  const corsOrigin = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',')
+    : process.env.NODE_ENV === 'production'
+      ? true
+      : ['http://localhost:3000'];
+
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://kiwidiscover-frontend.vercel.app',
-      /\.vercel\.app$/, // 允许所有 Vercel 预览部署
-    ],
+    origin: corsOrigin,
     credentials: true,
   });
 
