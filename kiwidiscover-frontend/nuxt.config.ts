@@ -7,19 +7,15 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@pinia/nuxt',
     '@nuxtjs/i18n',
-    'nuxt-security',
   ],
 
-  // 配置 CSP 允许连接到后端 API
-  security: {
-    headers: {
-      contentSecurityPolicy: {
-        'connect-src': [
-          "'self'",
-          'https://kidweekend.onrender.com',
-          'https://api.kidweekend.nz',
-          'https://*.meilisearch.io',
-        ],
+  // 禁用默认 CSP，改用自定义响应头
+  nitro: {
+    routeRules: {
+      '/**': {
+        headers: {
+          'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://kidweekend.onrender.com https://api.kidweekend.nz; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+        },
       },
     },
   },

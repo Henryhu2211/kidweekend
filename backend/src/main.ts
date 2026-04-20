@@ -5,15 +5,27 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 生产环境允许所有来源（Vercel预览部署动态域名）
-  const corsOrigin = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(',')
-    : process.env.NODE_ENV === 'production'
-      ? true
-      : ['http://localhost:3000'];
-
+  // CORS 配置：允许 Vercel 前端访问
   app.enableCors({
-    origin: corsOrigin,
+    origin: (origin, callback) => {
+      // 允许无 origin 的请求（如 curl、移动端）
+      if (!origin) return callback(null, true);
+      
+      // 允许 Vercel 部署域名
+      if (
+        origin === 'https://kiwidiscover-frontend.vercel.app' ||
+        origin.match(/^https:\/\/kiwidiscover-frontend-[\w-]+\.vercel\.app$/)
+      ) {
+        return callback(null, true);
+      }
+      
+      // 开发环境
+      if (origin.startsWith('http://localhost:')) {
+        return callback(null, true);
+      }
+      
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   });
 
