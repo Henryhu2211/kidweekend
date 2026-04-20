@@ -7,8 +7,8 @@
   },
   "scripts": {
     "dev": "nest start --watch",
-    "build": "echo '=== Starting NestJS build ===' && npx nest build && echo '=== Build complete, checking dist ===' && ls -la dist/",
-    "start": "node dist/main",
+    "build": "echo '=== Starting NestJS build ===' && npx nest build && echo '=== Build complete, checking dist ===' && ls -la dist/ && ls -la dist/src/",
+    "start": "node dist/src/main",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "ts-node prisma/seed.ts",
