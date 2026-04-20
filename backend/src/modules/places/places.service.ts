@@ -27,7 +27,7 @@ interface ListParams {
 export class PlacesService {
   constructor(
     private prisma: PrismaService,
-    private search: SearchService,
+    private searchService: SearchService,
   ) {}
 
   // ---------- 列表 ----------
@@ -108,7 +108,7 @@ export class PlacesService {
 
   // ---------- 搜索（PostgreSQL 全文搜索） ----------
   async search(query: string, limit: number) {
-    return this.search.search(query, limit);
+    return this.searchService.search(query, limit);
   }
 
   // ---------- 附近场所（PostgreSQL Haversine） ----------
