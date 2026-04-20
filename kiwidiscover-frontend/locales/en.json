@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "places": "Places",
+    "search": "Search",
+    "favourites": "Favourites",
+    "login": "Log in"
+  },
+  "home": {
+    "hero_title": "Discover NZ's Best Kid-Friendly Spots",
+    "hero_subtitle": "Parks, playgrounds, cafes and adventures — rated by parents, for families.",
+    "explore": "Explore Now",
+    "popular": "Popular This Week",
+    "nearby": "Near You",
+    "categories": "Categories",
+    "view_all": "View all"
+  },
+  "search": {
+    "placeholder": "Search places, activities, or suburbs...",
+    "filters": "Filters",
+    "results": "results",
+    "no_results": "No results found. Try different keywords.",
+    "clear": "Clear filters"
+  },
+  "place": {
+    "reviews": "Reviews",
+    "write_review": "Write a review",
+    "directions": "Get Directions",
+    "website": "Website",
+    "phone": "Phone",
+    "hours": "Opening Hours",
+    "closed": "Closed",
+    "open_now": "Open now",
+    "facilities": "Facilities",
+    "suitable_ages": "Suitable ages",
+    "free_entry": "Free entry",
+    "paid": "Paid",
+    "photos": "Photos",
+    "add_photo": "Add a photo"
+  },
+  "filter": {
+    "age": "Age Group",
+    "category": "Category",
+    "price": "Price",
+    "rating": "Rating",
+    "distance": "Distance",
+    "free": "Free only",
+    "outdoor": "Outdoor",
+    "indoor": "Indoor"
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}

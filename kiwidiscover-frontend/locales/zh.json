@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "places": "地点",
+    "search": "搜索",
+    "favourites": "收藏",
+    "login": "登录"
+  },
+  "home": {
+    "hero_title": "发现新西兰最适合亲子游的好去处",
+    "hero_subtitle": "公园、游乐场、亲子餐厅和探险活动 — 父母点评，为家庭精选。",
+    "explore": "立即探索",
+    "popular": "本周热门",
+    "nearby": "附近推荐",
+    "categories": "分类",
+    "view_all": "查看全部"
+  },
+  "search": {
+    "placeholder": "搜索地点、活动或区域...",
+    "filters": "筛选",
+    "results": "个结果",
+    "no_results": "未找到结果，请尝试其他关键词。",
+    "clear": "清除筛选"
+  },
+  "place": {
+    "reviews": "评价",
+    "write_review": "写评价",
+    "directions": "获取路线",
+    "website": "官方网站",
+    "phone": "电话",
+    "hours": "营业时间",
+    "closed": "已关闭",
+    "open_now": "营业中",
+    "facilities": "设施",
+    "suitable_ages": "适合年龄",
+    "free_entry": "免费入场",
+    "paid": "收费",
+    "photos": "照片",
+    "add_photo": "添加照片"
+  },
+  "filter": {
+    "age": "年龄分组",
+    "category": "类别",
+    "price": "价格",
+    "rating": "评分",
+    "distance": "距离",
+    "free": "仅免费",
+    "outdoor": "户外",
+    "indoor": "室内"
+  },
+  "footer": {
+    "rights": "保留所有权利。"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出了点问题",
+    "retry": "重试",
+    "back": "返回",
+    "save": "保存",
+    "cancel": "取消"
+  }
+}

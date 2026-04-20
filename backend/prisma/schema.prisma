@@ -1,0 +1,292 @@
+// ============================================================
+// schema.prisma — NZ Family Places API
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------------
+// Enums
+// ----------------------------------------------------------
+
+enum Role {
+  USER
+  EDITOR
+  ADMIN
+}
+
+enum PlaceStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PriceType {
+  FREE
+  LOW      // < $20
+  MEDIUM   // $20-50
+  HIGH     // > $50
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ----------------------------------------------------------
+// Models
+// ----------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  avatar        String?
+  password      String?   // 仅用于密码登录；Auth.js OAuth 用户无密码
+  role          Role      @default(USER)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  refreshTokens  RefreshToken[]
+  reviews        Review[]
+  favorites      Favorite[]
+  auditLogs      AuditLog[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// JWT Refresh Token 表（用于 Token Rotation）
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Category {
+  id     String  @id @default(cuid())
+  nameEn String
+  nameZh String
+  slug   String  @unique
+  icon   String?
+  order  Int     @default(0)
+
+  places Place[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id     String  @id @default(cuid())
+  nameEn String
+  nameZh String
+  slug   String  @unique
+
+  places Place[]
+
+  @@map("tags")
+}
+
+model Place {
+  id            String      @id @default(cuid())
+  slug          String      @unique
+  nameEn        String
+  nameZh        String
+  namePinyin    String?
+  description   String?     @db.Text
+  address       String
+  lat           Float
+  lng           Float
+  region        String
+  priceType     PriceType   @default(FREE)
+  ageMin        Int?
+  ageMax        Int?
+  indoor        Boolean     @default(false)
+  hasParking    Boolean     @default(false)
+  hasToilet     Boolean     @default(false)
+  hasFood       Boolean     @default(false)
+  phone         String?
+  website       String?
+  isFeatured    Boolean     @default(false)
+  status        PlaceStatus @default(DRAFT)
+  avgRating     Float       @default(0)
+  reviewCount   Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  tags         Tag[]
+  images       PlaceImage[]
+  openingHours OpeningHour[]
+  reviews      Review[]
+  favorites    Favorite[]
+
+  @@map("places")
+}
+
+model PlaceImage {
+  id        String   @id @default(cuid())
+  placeId   String
+  url       String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@map("place_images")
+}
+
+model OpeningHour {
+  id        String  @id @default(cuid())
+  placeId   String
+  dayOfWeek Int    // 0=Sun, 1=Mon, ..., 6=Sat
+  openTime  String // "09:00"
+  closeTime String // "17:00"
+  closed    Boolean @default(false)
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@map("opening_hours")
+}
+
+model Review {
+  id        String       @id @default(cuid())
+  content   String       @db.Text
+  rating    Int          // 1-5
+  visitDate DateTime
+  status    ReviewStatus @default(PENDING)
+  helpful   Int          @default(0)
+  userId    String
+  placeId   String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  helpfulVotes HelpfulVote[]
+
+  @@map("reviews")
+}
+
+model HelpfulVote {
+  id        String   @id @default(cuid())
+  userId    String
+  reviewId  String
+  createdAt DateTime @default(now())
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@map("helpful_votes")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  placeId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, placeId])
+  @@map("favorites")
+}
+
+// ----------------------------------------------------------
+// Audit Log — 管理员操作审计
+// ----------------------------------------------------------
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String                    // e.g. "PlacesController.create"
+  resource   String                    // e.g. "places"
+  resourceId String?                   // 目标记录 ID
+  details    Json?                     // 请求详情（method/url/body摘要）
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ----------------------------------------------------------
+// Dead Letter Queue — Meilisearch 同步失败记录
+// ----------------------------------------------------------
+model DeadLetterQueue {
+  id         String   @id @default(cuid())
+  action     String                    // e.g. "sync_place", "delete_place"
+  payload    Json                      // 失败的操作数据
+  retryCount Int      @default(0)
+  status     String   @default("pending")  // pending | failed | resolved
+  createdAt  DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("dead_letter_queue")
+}
