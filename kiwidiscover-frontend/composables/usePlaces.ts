@@ -54,9 +54,14 @@ export const usePlaces = () => {
 
   // 搜索
   const searchPlaces = async (q: string, page = 1) => {
-    return $fetch<PaginatedResponse<Place>>(`${apiBase}/places/search`, {
+    const res = await $fetch<{ hits: any[], query: string, processingTimeMs: number }>(`${apiBase}/places/search`, {
       query: { q, page, limit: 12 },
     })
+    // 转换后端的 hits 格式为前端期望的 data 格式
+    return {
+      data: res.hits,
+      meta: { total: res.hits.length, page, limit: 12, totalPages: 1 },
+    }
   }
 
   // 加载更多
