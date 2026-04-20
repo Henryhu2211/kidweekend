@@ -7,7 +7,22 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@pinia/nuxt',
     '@nuxtjs/i18n',
+    'nuxt-security',
   ],
+
+  // 配置 CSP 允许连接到后端 API
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        'connect-src': [
+          "'self'",
+          'https://kidweekend.onrender.com',
+          'https://api.kidweekend.nz',
+          'https://*.meilisearch.io',
+        ],
+      },
+    },
+  },
 
   css: ['~/assets/css/main.css'],
 
